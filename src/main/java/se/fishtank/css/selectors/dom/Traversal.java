@@ -16,7 +16,7 @@ public class Traversal {
     /**
      * Traverse all element nodes starting at {@code root}.
      *
-     * @param root The root node.
+     * @param root    The root node.
      * @param visitor The visitor that will be called for each element node.
      */
     public static <T extends DOMNode<T, ?>> void traverseElements(T root, Visitor<T> visitor) {
@@ -24,8 +24,10 @@ public class Traversal {
             visitor.visit(root);
         }
 
-        for (T child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
-            traverseElements(child, visitor);
+        int childCount = root.getChildCount();
+
+        for (int i = 0; i < childCount; i++) {
+            traverseElements(root.getChildByIndex(i), visitor);
         }
     }
 

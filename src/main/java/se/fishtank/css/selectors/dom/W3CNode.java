@@ -18,7 +18,9 @@ import org.w3c.dom.Node;
  */
 public class W3CNode implements DOMNode<W3CNode, Node> {
 
-    /** The underlying node. */
+    /**
+     * The underlying node.
+     */
     private final Node node;
 
     /**
@@ -44,14 +46,14 @@ public class W3CNode implements DOMNode<W3CNode, Node> {
     @Override
     public Type getType() {
         switch (node.getNodeType()) {
-        case Node.DOCUMENT_NODE:
-            return Type.DOCUMENT;
-        case Node.ELEMENT_NODE:
-            return Type.ELEMENT;
-        case Node.TEXT_NODE:
-            return Type.TEXT;
-        default:
-            return Type.OTHER;
+            case Node.DOCUMENT_NODE:
+                return Type.DOCUMENT;
+            case Node.ELEMENT_NODE:
+                return Type.ELEMENT;
+            case Node.TEXT_NODE:
+                return Type.TEXT;
+            default:
+                return Type.OTHER;
         }
     }
 
@@ -118,6 +120,22 @@ public class W3CNode implements DOMNode<W3CNode, Node> {
     @Override
     public W3CNode getParentNode() {
         return wrap(node.getParentNode());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getChildCount() {
+        return node.getChildNodes().getLength();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public W3CNode getChildByIndex(int i) {
+        return wrap(node.getChildNodes().item(i));
     }
 
     /**

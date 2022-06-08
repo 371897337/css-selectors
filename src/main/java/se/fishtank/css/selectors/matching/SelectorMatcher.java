@@ -17,15 +17,21 @@ import se.fishtank.css.selectors.selector.*;
  */
 public class SelectorMatcher<T extends DOMNode<T, ?>> {
 
-    /** Matching result when matching compound selectors */
+    /**
+     * Matching result when matching compound selectors
+     */
     private static enum MatchingResult {
         MATCHED, NOT_MATCHED, RESTART_FROM_CLOSEST_DESCENDANT, RESTART_FROM_CLOSEST_LATER_SIBLING
     }
 
-    /** Space regex */
+    /**
+     * Space regex
+     */
     public static final Pattern SPACE_REGEX = Pattern.compile("[ \\t\\r\\n\\f]+");
 
-    /** Simple selector matcher for custom matching. */
+    /**
+     * Simple selector matcher for custom matching.
+     */
     private final SimpleSelectorMatcher<T> simpleSelectorMatcher;
 
     /**
@@ -48,7 +54,7 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given selectors against the given node.
      *
      * @param selectors The selectors
-     * @param node The root node.
+     * @param node      The root node.
      * @return {@code true} or {@code false}
      */
     public boolean matchesSelectors(List<Selector> selectors, T node) {
@@ -65,7 +71,7 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given selector against the given node.
      *
      * @param selector The selector
-     * @param node The root node.
+     * @param node     The root node.
      * @return {@code true} or {@code false}
      */
     public boolean matchesSelector(Selector selector, T node) {
@@ -77,16 +83,20 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given simple selector against the given node.
      *
      * @param selector The simple selector.
-     * @param node The root node.
+     * @param node     The root node.
      * @return {@code true} or {@code false}
      */
     public boolean matchesSimpleSelector(SimpleSelector selector, T node) {
         if (node.getType() == DOMNode.Type.DOCUMENT) {
-            for (node = node.getFirstChild(); node != null; node = node.getNextSibling()) {
-                if (node.getType() == DOMNode.Type.ELEMENT) {
+            int childCount = node.getChildCount();
+            int i = 0;
+            for (i = 0; i < childCount; i++) {
+                if (node.getChildByIndex(i).getType() == DOMNode.Type.ELEMENT) {
                     break;
                 }
             }
+
+            node = node.getChildByIndex(i);
         }
 
         if (node == null || node.getType() != DOMNode.Type.ELEMENT) {
@@ -116,7 +126,7 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given compound selector against the given node.
      *
      * @param selector The compound selector.
-     * @param node The root node.
+     * @param node     The root node.
      * @return A matching result.
      */
     private MatchingResult matchesCompoundSelector(CompoundSelector selector, T node) {
@@ -134,10 +144,10 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
         MatchingResult candidateNotFound = MatchingResult.NOT_MATCHED;
 
         switch (selector.previous.first) {
-        case NEXT_SIBLING:
-        case LATER_SIBLING:
-            siblings = true;
-            candidateNotFound = MatchingResult.RESTART_FROM_CLOSEST_DESCENDANT;
+            case NEXT_SIBLING:
+            case LATER_SIBLING:
+                siblings = true;
+                candidateNotFound = MatchingResult.RESTART_FROM_CLOSEST_DESCENDANT;
         }
 
         while (true) {
@@ -161,14 +171,14 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
                 }
 
                 switch (selector.previous.first) {
-                case CHILD:
-                    return MatchingResult.RESTART_FROM_CLOSEST_DESCENDANT;
-                case NEXT_SIBLING:
-                    return result;
-                case LATER_SIBLING:
-                    if (result == MatchingResult.RESTART_FROM_CLOSEST_DESCENDANT) {
+                    case CHILD:
+                        return MatchingResult.RESTART_FROM_CLOSEST_DESCENDANT;
+                    case NEXT_SIBLING:
                         return result;
-                    }
+                    case LATER_SIBLING:
+                        if (result == MatchingResult.RESTART_FROM_CLOSEST_DESCENDANT) {
+                            return result;
+                        }
                 }
             }
         }
@@ -178,7 +188,7 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given attribute selector against the given node.
      *
      * @param selector The attribute selector.
-     * @param node The node to match against.
+     * @param node     The node to match against.
      * @return {@code true} or {@code false}
      */
     private boolean matchesAttributeSelector(AttributeSelector selector, T node) {
@@ -193,27 +203,27 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
             }
 
             switch (selector.match) {
-            case EXISTS:
-                return true;
-            case EQUALS:
-                return entry.getValue().equals(selector.value);
-            case INCLUDES:
-                for (String v : SPACE_REGEX.split(entry.getValue())) {
-                    if (v.equals(selector.value)) {
-                        return true;
+                case EXISTS:
+                    return true;
+                case EQUALS:
+                    return entry.getValue().equals(selector.value);
+                case INCLUDES:
+                    for (String v : SPACE_REGEX.split(entry.getValue())) {
+                        if (v.equals(selector.value)) {
+                            return true;
+                        }
                     }
-                }
 
-                return false;
-            case BEGINS:
-                return entry.getValue().startsWith(selector.value);
-            case ENDS:
-                return entry.getValue().endsWith(selector.value);
-            case CONTAINS:
-                return entry.getValue().contains(selector.value);
-            case HYPHENS:
-                String v = entry.getValue();
-                return v.equals(selector.value) || v.startsWith(selector.value + "-");
+                    return false;
+                case BEGINS:
+                    return entry.getValue().startsWith(selector.value);
+                case ENDS:
+                    return entry.getValue().endsWith(selector.value);
+                case CONTAINS:
+                    return entry.getValue().contains(selector.value);
+                case HYPHENS:
+                    String v = entry.getValue();
+                    return v.equals(selector.value) || v.startsWith(selector.value + "-");
             }
 
             return false;
@@ -226,7 +236,7 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given pseudo class selector against the given node.
      *
      * @param selector The pseudo class selector.
-     * @param node The root node.
+     * @param node     The root node.
      * @return {@code true} or {@code false}
      */
     private boolean matchesPseudoClassSelector(PseudoClassSelector selector, T node) {
@@ -247,18 +257,19 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
                 T parentNode = node.getParentNode();
                 return parentNode != null && parentNode.getType() == DOMNode.Type.DOCUMENT;
             case "empty":
-                for (T child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+                int childCount = node.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    T child = node.getChildByIndex(i);
                     switch (child.getType()) {
-                    case ELEMENT:
-                        return false;
-                    case TEXT:
-                        String data = child.getData();
-                        if (data != null && !data.isEmpty()) {
+                        case ELEMENT:
                             return false;
-                        }
+                        case TEXT:
+                            String data = child.getData();
+                            if (data != null && !data.isEmpty()) {
+                                return false;
+                            }
                     }
                 }
-
                 return true;
             default:
                 return false;
@@ -269,28 +280,28 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
      * Matches the given {@code nth-*} pseudo class selector against the given node.
      *
      * @param selector The {@code nth-*} pseudo class selector.
-     * @param node The root node.
+     * @param node     The root node.
      * @return {@code true} or {@code false}
      */
     private boolean matchesPseudoNthSelector(PseudoNthSelector selector, T node) {
         switch (selector.name) {
-        case "nth-child":
-            return matchesNthChild(node, selector.a, selector.b, false, false);
-        case "nth-last-child":
-            return matchesNthChild(node, selector.a, selector.b, false, true);
-        case "nth-of-type":
-            return matchesNthChild(node, selector.a, selector.b, true, false);
-        case "nth-last-of-type":
-            return matchesNthChild(node, selector.a, selector.b, true, true);
-        default:
-            return false;
+            case "nth-child":
+                return matchesNthChild(node, selector.a, selector.b, false, false);
+            case "nth-last-child":
+                return matchesNthChild(node, selector.a, selector.b, false, true);
+            case "nth-of-type":
+                return matchesNthChild(node, selector.a, selector.b, true, false);
+            case "nth-last-of-type":
+                return matchesNthChild(node, selector.a, selector.b, true, true);
+            default:
+                return false;
         }
     }
 
     /**
      * Matches a first or last child.
      *
-     * @param node The root node.
+     * @param node  The root node.
      * @param first If matching is performed against the first child.
      * @return {@code true} or {@code false}
      */
@@ -319,11 +330,11 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
     /**
      * Matches the <i>nth</i> child.
      *
-     * @param node The root node.
-     * @param a The <i>A</i> argument.
-     * @param b The <i>B</i> argument.
+     * @param node     The root node.
+     * @param a        The <i>A</i> argument.
+     * @param b        The <i>B</i> argument.
      * @param isOfType If the matching is performed for a {@code -of-type} selector.
-     * @param fromEnd If matching is performed from the end.
+     * @param fromEnd  If matching is performed from the end.
      * @return {@code true} or {@code false}
      */
     private boolean matchesNthChild(T node, int a, int b, boolean isOfType, boolean fromEnd) {
@@ -362,7 +373,7 @@ public class SelectorMatcher<T extends DOMNode<T, ?>> {
             return b == i;
         }
 
-        return ((i - b) / a) >= 0 && ((i - b) %a) == 0;
+        return ((i - b) / a) >= 0 && ((i - b) % a) == 0;
     }
 
 }

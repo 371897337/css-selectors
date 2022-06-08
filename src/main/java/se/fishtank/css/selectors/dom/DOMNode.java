@@ -9,12 +9,13 @@ import java.util.Map;
  * DOM node abstraction.
  *
  * @param <T> The actual node type.
- *
  * @author Christer Sandberg
  */
 public interface DOMNode<T extends DOMNode, U> {
 
-    /** Node type. */
+    /**
+     * Node type.
+     */
     public static enum Type {
         DOCUMENT, ELEMENT, TEXT, OTHER
     }
@@ -76,5 +77,19 @@ public interface DOMNode<T extends DOMNode, U> {
      * @return The parent or {@code null}
      */
     public T getParentNode();
+
+    /**
+     * Returns the child count of this node.
+     *
+     * @return The child count or {@int 0}
+     */
+    public int getChildCount();
+
+    /**
+     * Returns the child by index
+     *
+     * @return The child or {@code null}
+     */
+    public T getChildByIndex(int i);
 
 }
