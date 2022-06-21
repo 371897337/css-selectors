@@ -20,6 +20,10 @@ public class Traversal {
      * @param visitor The visitor that will be called for each element node.
      */
     public static <T extends DOMNode<T, ?>> void traverseElements(T root, Visitor<T> visitor) {
+        if (root == null) {
+            return;
+        }
+
         if (root.getType() == DOMNode.Type.ELEMENT) {
             visitor.visit(root);
         }
